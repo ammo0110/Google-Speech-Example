@@ -5,7 +5,7 @@ from google.cloud.speech import types
 def transcribe_audio(audio_bytes, framerate, language, context):
     client = speech.SpeechClient()
     config = types.RecognitionConfig(
-                        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+                        encoding=enums.RecognitionConfig.AudioEncoding.MULAW,
                         sample_rate_hertz=framerate,
                         profanity_filter=True,
                         speech_contexts=[speech.types.SpeechContext(phrases=context)],

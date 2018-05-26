@@ -1,4 +1,5 @@
 import wave
+import audioop
 import gspeech
 
 def convert_secs(x):
@@ -22,7 +23,8 @@ class WAVTranscriber:
         self._wvau = wave.open(infile, "r")
         # Check whether file has proper parameters for Google Speech or not
         channels, sampwidth, framerate, framecount, comptype, compname = self._wvau.getparams()
-
+        if sampwidth != 2:
+            raise AttributeError("Sample width is not 16 bit")
         # Set params for transcribing
         self._quantumsize = 30
         self._elapsed = 0
@@ -52,7 +54,9 @@ class WAVTranscriber:
         if self._framecount == 0:
             self._wvau.close()
             raise StopIteration
-        data = self._wvau.readframes(self._framesperquantum)
+        lindata = self._wvau.readframes(self._framesperquantum)
+        # Convert this data to ulaw
+        data = audioop.lin2ulaw(lindata, 2)
         # Transcribe using Google Speech API
         result = gspeech.transcribe_audio(data, self._wvau.getframerate(), self.language, None)
         if self._framecount < self._framesperquantum:
