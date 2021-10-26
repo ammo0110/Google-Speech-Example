@@ -8,7 +8,7 @@ def convert_secs(x):
     mins = x % 60
     x /= 60
     hrs = x % 24
-    return str(hrs) + ":" + str(mins) + ":" + str(secs)
+    return str(int(hrs)) + ":" + str(int(mins)) + ":" + str(int(secs))
 
 class WAVTranscriber:
 
@@ -50,15 +50,15 @@ class WAVTranscriber:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self._framecount == 0:
             self._wvau.close()
             raise StopIteration
         lindata = self._wvau.readframes(self._framesperquantum)
         # Convert this data to ulaw
-        data = audioop.lin2ulaw(lindata, 2)
+        #data = audioop.lin2ulaw(lindata, 2)
         # Transcribe using Google Speech API
-        result = gspeech.transcribe_audio(data, self._wvau.getframerate(), self.language, None)
+        result = gspeech.transcribe_audio(lindata, self._wvau.getframerate(), self.language, None)
         if self._framecount < self._framesperquantum:
             self._framecount = 0
             timestring = "From " + convert_secs(self._elapsed) + " to " + convert_secs(self._duration) + "\n"
